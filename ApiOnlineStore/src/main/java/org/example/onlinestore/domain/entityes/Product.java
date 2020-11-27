@@ -6,15 +6,17 @@ import java.io.Serializable;
 @Entity
 @Table(name = "Products")
 public class Product implements Serializable {
+    private static final long serialVersionUID = 1189L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "Name")
+    @Column(name = "name")
     private String name;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "Category_id")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     // ------------------------------------------------------------------------------------------------

@@ -1,19 +1,19 @@
 package org.example.onlinestore.domain.entityes;
 
+import org.example.onlinestore.domain.entityes.resources.CompositeKey;
+
 import javax.persistence.*;
 
 @Entity
+@IdClass(CompositeKey.class)
 @Table(name = "Params")
 public class Parameter {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
     @ManyToOne()
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Id
     @ManyToOne()
     @JoinColumn(name = "attribute_id")
     private Attribute attribute;
@@ -22,14 +22,6 @@ public class Parameter {
 
     // ------------------------------------------------------------------------------------------------
     public Parameter() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Product getProduct() {

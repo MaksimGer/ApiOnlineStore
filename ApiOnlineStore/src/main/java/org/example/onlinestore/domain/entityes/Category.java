@@ -1,6 +1,7 @@
 package org.example.onlinestore.domain.entityes;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.example.onlinestore.domain.entityes.resolver.EntityIdResolver;
 
@@ -15,7 +16,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "Name")
+    @Column(name = "name")
     private String name;
 
     @ManyToMany
@@ -23,6 +24,7 @@ public class Category {
             ,resolver = EntityIdResolver.class
             , scope = Category.class
             ,property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<Attribute> attributes = new HashSet<>();
 
     //------------------------------------------------------------------------------------------

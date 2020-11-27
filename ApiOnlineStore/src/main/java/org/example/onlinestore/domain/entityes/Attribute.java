@@ -19,7 +19,7 @@ public class Attribute {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "Name")
+    @Column(name = "name")
     private String name;
 
     @ManyToMany(mappedBy = "attributes")
@@ -33,6 +33,8 @@ public class Attribute {
     //------------------------------------------------------------------------------------------
 
     public Attribute() { }
+
+    public Attribute(Long id, String name) {setId(id); setName(name); }
 
     public Long getId() { return id; }
 
