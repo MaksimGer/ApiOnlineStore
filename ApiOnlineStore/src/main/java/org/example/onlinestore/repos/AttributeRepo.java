@@ -10,4 +10,7 @@ public interface AttributeRepo extends CrudRepository<Attribute, Long> {
     @Override
     @NonNull
     List<Attribute> findAll();
+
+    @NonNull
+    List<Attribute> findAllByName(String attributeName);
 }

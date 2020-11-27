@@ -31,9 +31,11 @@ public class AttributeService implements IAttributeService {
     }
 
     @Override
-    public void save(Attribute attribute) {
+    public Attribute save(Attribute attribute) {
         if(attribute != null)
-            attributeRepo.save(attribute);
+            return attributeRepo.save(attribute);
+
+        return null;
     }
 
     @Override
@@ -67,5 +69,13 @@ public class AttributeService implements IAttributeService {
     @Override
     public void deleteAll() {
         attributeRepo.deleteAll();
+    }
+
+    @Override
+    public List<Attribute> findAllByName(String attributeName) {
+        if(attributeName == null)
+            return null;
+
+        return attributeRepo.findAllByName(attributeName);
     }
 }
