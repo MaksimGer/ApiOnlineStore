@@ -1,21 +1,25 @@
 package org.example.onlinestore.domain.entityes;
 
-import org.example.onlinestore.domain.entityes.resources.CompositeKey;
+//import org.example.onlinestore.domain.entityes.resources.CompositeKey;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@IdClass(CompositeKey.class)
+//@IdClass(CompositeKey.class)
 @Table(name = "Params")
 public class Parameter implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+//    @Id
     @ManyToOne()
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Id
+//    @Id
     @ManyToOne()
     @JoinColumn(name = "attribute_id")
     private Attribute attribute;
@@ -24,6 +28,14 @@ public class Parameter implements Serializable {
 
     // ------------------------------------------------------------------------------------------------
     public Parameter() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Product getProduct() {
@@ -57,7 +69,8 @@ public class Parameter implements Serializable {
         Parameter parameter = (Parameter) o;
         return Objects.equals(product, parameter.product) &&
                 Objects.equals(attribute, parameter.attribute) &&
-                Objects.equals(value, parameter.value);
+                Objects.equals(value, parameter.value) &&
+                Objects.equals(id, parameter.id);
     }
 
     @Override
@@ -67,6 +80,7 @@ public class Parameter implements Serializable {
         hashCode = 31 * hashCode + product.hashCode();
         hashCode = 31 * hashCode + attribute.hashCode();
         hashCode = 31 * hashCode + value.hashCode();
+        hashCode = 31 * hashCode + (int)(id^(id>>>32));
 
         return hashCode;
     }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -104,23 +105,32 @@ public class CategoryController {
             Attribute attrById = attributeService.findById(attributeId);
 
             if(attrById!=null) {
-                if (curCategory.addAttribute(attrById)) { // если добавили атрибут в категорию всем продуктам в этой категории присвоить значение этого атрибута = "-"
+                if (curCategory.addAttribute(attrById)) {
 
-                    for (Product product : curCategory.getProducts()) {
-
-                        Parameter newParameter = new Parameter();
-                        newParameter.setProduct(product);
-                        newParameter.setAttribute(attrById);
-                        newParameter.setValue("-");
-
-                        parameterService.save(newParameter);
-                    }
+                    addParametersToProductsOfCategory(curCategory, attrById);
                 }
             }
         }
+        removeUnnecessaryAttributes(curCategory, requestCategory);
+    }
 
-        for(Attribute attribute: curCategory.getAttributes()){
-            if(!requestCategory.getAttributes().contains(attribute.getId())){ // если в полученной модели нет атрибута который есть в существующей категории, то у продуктов из этой категории удалить этот атрибут
+    private void addParametersToProductsOfCategory(Category curCategory, Attribute newAttribute){
+        for (Product product : curCategory.getProducts()) {
+
+            Parameter newParameter = new Parameter();
+            newParameter.setProduct(product);
+            newParameter.setAttribute(newAttribute);
+            newParameter.setValue("-");
+
+            parameterService.save(newParameter);
+        }
+    }
+
+    private void removeUnnecessaryAttributes(Category curCategory, CategoryModel updateCategory){
+        List<Attribute> categoryAttributes = new ArrayList<>(curCategory.getAttributes());
+
+        for(Attribute attribute: categoryAttributes){
+            if(!updateCategory.getAttributes().contains(attribute.getId())){
                 curCategory.removeAttribute(attribute);
 
                 for (Product product : curCategory.getProducts()) {
@@ -130,3 +140,5 @@ public class CategoryController {
         }
     }
 }
+
+

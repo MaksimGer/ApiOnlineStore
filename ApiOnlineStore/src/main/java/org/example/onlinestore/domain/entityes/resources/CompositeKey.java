@@ -1,4 +1,4 @@
-package org.example.onlinestore.domain.entityes.resources;
+/*package org.example.onlinestore.domain.entityes.resources;
 
 import org.example.onlinestore.domain.entityes.Attribute;
 import org.example.onlinestore.domain.entityes.Product;
@@ -44,4 +44,4 @@ public class CompositeKey implements Serializable {
 
         return hashCode;
     }
-}
+}*/
