@@ -10,4 +10,7 @@ public interface CategoryRepo extends CrudRepository<Category, Long> {
     @Override
     @NonNull
     List<Category> findAll();
+
+    @NonNull
+    List<Category> findAllByName(String categoryName);
 }

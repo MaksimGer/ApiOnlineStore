@@ -7,6 +7,7 @@ import org.example.onlinestore.domain.entityes.resolver.EntityIdResolver;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -27,7 +28,15 @@ public class Category {
     @JsonIdentityReference(alwaysAsId = true)
     private Set<Attribute> attributes = new HashSet<>();
 
-    //------------------------------------------------------------------------------------------
+    @OneToMany
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class
+            ,resolver = EntityIdResolver.class
+            ,scope = Category.class
+            ,property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
+    private Set<Product> products = new HashSet<>();
+
+//------------------------------------------------------------------------------------------
 
     public Category() { }
 
@@ -43,12 +52,14 @@ public class Category {
 
     public void setAttributes(Set<Attribute> attributes) { this.attributes = attributes; }
 
-    public void addAttribute(Attribute attribute){
-        attributes.add(attribute);
+    public boolean addAttribute(Attribute attribute){
+        boolean isAdded = attributes.add(attribute);
 
         if(!attribute.getCategories().contains(this)) {
             attribute.addCategory(this);
         }
+
+        return isAdded;
     }
 
     public void removeAttribute(Attribute attribute){
@@ -60,5 +71,35 @@ public class Category {
 
     public void removeAllAttributes(){
         attributes.clear();
+    }
+
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
+
+    public void removeAllProducts() { products.clear(); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
+        Category category = (Category) o;
+        return Objects.equals(id, category.id) &&
+                Objects.equals(name, category.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 23;
+
+        hashCode = 31 * hashCode + (int)(id^(id>>>32));
+        hashCode = 31 * hashCode + name.hashCode();
+
+        return hashCode;
     }
 }

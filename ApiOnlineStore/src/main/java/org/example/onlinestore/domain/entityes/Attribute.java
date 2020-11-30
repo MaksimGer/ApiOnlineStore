@@ -6,14 +6,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.example.onlinestore.domain.entityes.resolver.EntityIdResolver;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 @Entity
 @Table(name = "Attributes")
-public class Attribute {
+public class Attribute implements Serializable {
+    private static final long serialVersionUID = 1188L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,8 +33,6 @@ public class Attribute {
 
     public Attribute() { }
 
-    public Attribute(Long id, String name) {setId(id); setName(name); }
-
     public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }
@@ -48,12 +45,14 @@ public class Attribute {
 
     public void setCategories(Set<Category> categories) { this.categories = categories; }
 
-    public void addCategory(Category category){
-        categories.add(category);
+    public boolean addCategory(Category category){
+        boolean isAdded = categories.add(category);
 
         if(!category.getAttributes().contains(this)){
             category.addAttribute(this);
         }
+
+        return isAdded;
     }
 
     public void removeCategory(Category category){
@@ -69,5 +68,24 @@ public class Attribute {
             category.removeAttribute(this);
         }
         this.categories.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
+        Attribute attribute = (Attribute) o;
+        return Objects.equals(id, attribute.id) &&
+                Objects.equals(name, attribute.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 23;
+
+        hashCode = 31 * hashCode + (int)(id^(id>>>32));
+        hashCode = 31 * hashCode + name.hashCode();
+
+        return hashCode;
     }
 }

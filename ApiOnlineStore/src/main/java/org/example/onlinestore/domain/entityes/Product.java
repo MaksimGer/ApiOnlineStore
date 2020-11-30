@@ -1,12 +1,18 @@
 package org.example.onlinestore.domain.entityes;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.example.onlinestore.domain.entityes.resolver.EntityIdResolver;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Products")
 public class Product implements Serializable {
-    private static final long serialVersionUID = 1189L;
+    private static final long serialVersionUID = 1188L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -17,6 +23,11 @@ public class Product implements Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class
+            , resolver= EntityIdResolver.class
+            , scope=Product.class
+            , property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Category category;
 
     // ------------------------------------------------------------------------------------------------
@@ -34,4 +45,26 @@ public class Product implements Serializable {
     public void setName(String name) { this.name = name; }
 
     public void setCategory(Category category) { this.category = category; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
+        Product product = (Product) o;
+
+        return Objects.equals(id, product.id) &&
+                Objects.equals(name, product.name) &&
+                category.equals(product.category);
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 23;
+
+        hashCode = 31 * hashCode + (int)(id^(id>>>32));
+        hashCode = 31 * hashCode + name.hashCode();
+        hashCode = 31 * hashCode + category.hashCode();
+
+        return hashCode;
+    }
 }

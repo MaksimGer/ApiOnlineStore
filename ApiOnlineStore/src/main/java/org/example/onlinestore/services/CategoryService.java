@@ -32,22 +32,25 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public void save(Category category) {
+    public Category save(Category category) {
         if(category != null)
-            categoryRepo.save(category);
+            return categoryRepo.save(category);
+
+        return null;
     }
 
     @Override
-    public Category update(Long id, String name) {
-        if(id == null)
+    public Category update(Category updateCategory) {
+        if(updateCategory.getId() == null)
             return null;
 
-        Category curCategory = categoryRepo.findById(id).orElse(null);
+        Category curCategory = categoryRepo.findById(updateCategory.getId()).orElse(null);
 
         if(curCategory == null)
             return null;
 
-        curCategory.setName(name);
+        curCategory.setName(updateCategory.getName());
+        curCategory.setAttributes(updateCategory.getAttributes());
 
         return categoryRepo.save(curCategory);
     }
@@ -68,5 +71,13 @@ public class CategoryService implements ICategoryService {
     @Override
     public void deleteAll() {
         categoryRepo.deleteAll();
+    }
+
+    @Override
+    public List<Category> findAllByName(String categoryName) {
+        if(categoryName == null)
+            return null;
+
+        return categoryRepo.findAllByName(categoryName);
     }
 }
