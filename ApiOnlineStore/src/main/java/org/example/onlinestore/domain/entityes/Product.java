@@ -21,13 +21,8 @@ public class Product implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
-    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class
-            , resolver= EntityIdResolver.class
-            , scope=Product.class
-            , property = "id")
-    @JsonIdentityReference(alwaysAsId = true)
     private Category category;
 
     // ------------------------------------------------------------------------------------------------
@@ -44,7 +39,17 @@ public class Product implements Serializable {
 
     public void setName(String name) { this.name = name; }
 
-    public void setCategory(Category category) { this.category = category; }
+    public void setCategory(Category category) {
+        if(this.category != null && !this.category.equals(category)){
+            this.category.removeProduct(this);
+        }
+
+        if(category != null){
+            this.category = category;
+
+            category.addProduct(this);
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

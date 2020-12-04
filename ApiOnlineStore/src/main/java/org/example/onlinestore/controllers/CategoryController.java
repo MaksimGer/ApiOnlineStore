@@ -74,9 +74,11 @@ public class CategoryController {
     @ResponseBody
     public Category updateCategory(@RequestBody CategoryModel requestCategory) {
         Category curCategory = categoryService.findById(requestCategory.getId());
+        List<Category> allCategoriesByName = categoryService.findAllByName(requestCategory.getName());
 
         if(curCategory != null){
-            curCategory.setName(requestCategory.getName());
+            if(allCategoriesByName.isEmpty())
+                curCategory.setName(requestCategory.getName());
 
             addAttrFromReq(curCategory, requestCategory);
 
@@ -120,7 +122,7 @@ public class CategoryController {
             Parameter newParameter = new Parameter();
             newParameter.setProduct(product);
             newParameter.setAttribute(newAttribute);
-            newParameter.setValue("-");
+            newParameter.setValue("unknown");
 
             parameterService.save(newParameter);
         }

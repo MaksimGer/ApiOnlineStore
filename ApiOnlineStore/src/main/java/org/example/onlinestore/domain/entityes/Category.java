@@ -62,11 +62,26 @@ public class Category {
         return isAdded;
     }
 
+    public boolean addProduct(Product product){
+        boolean isAdded = products.add(product);
+
+        if(!product.getCategory().equals(this)) {
+            product.setCategory(this);
+        }
+
+        return isAdded;
+    }
+
+
     public void removeAttribute(Attribute attribute){
         attributes.remove(attribute);
         if(attribute.getCategories().contains(this)){
             attribute.removeCategory(this);
         }
+    }
+
+    public void removeProduct(Product product){
+        products.remove(product);
     }
 
     public void removeAllAttributes(){

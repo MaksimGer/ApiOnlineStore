@@ -69,4 +69,9 @@ public class ProductService implements IProductService {
     public void deleteAll() {
         productRepo.deleteAll();
     }
+
+    @Override
+    public List<Product> findAllByName(String name) {
+        return productRepo.findAllByName(name);
+    }
 }

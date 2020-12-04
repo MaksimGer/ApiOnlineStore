@@ -15,9 +15,7 @@ public class AttributeController {
     @Autowired
     private IAttributeService attributeService;
 
-    @RequestMapping(value = "",
-    method = RequestMethod.GET,
-    produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     public List<Attribute> getAllAttributes(){
         return attributeService.findAll();
@@ -48,9 +46,11 @@ public class AttributeController {
 
     @RequestMapping(value = "", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public void deleteAttribute(@RequestParam("id") Attribute attribute) {
-        attribute.removeAllCategories();
-        attributeService.save(attribute);
-        attributeService.deleteById(attribute.getId());
+    public String deleteAttribute(@RequestParam("id") Attribute attribute) {
+        if(attribute.getCategories().isEmpty()){
+            attributeService.deleteById(attribute.getId());
+            return "SUCCESS";
+        }
+        return "ERR: THIS ATTRIBUTE IS CONTAINED IN ONE OR MORE CATEGORIES";
     }
 }

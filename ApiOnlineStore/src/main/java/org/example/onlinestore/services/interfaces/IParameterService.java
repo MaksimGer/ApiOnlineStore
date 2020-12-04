@@ -14,4 +14,5 @@ public interface IParameterService{
     Parameter update(Product product, Attribute attribute, String value);
     Parameter deleteByProductAndAttribute(Product product, Attribute attribute);
     void deleteAll();
+    void deleteAll(List<Parameter> parameters);
 }

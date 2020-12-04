@@ -81,4 +81,9 @@ public class parameterService implements IParameterService {
     public void deleteAll() {
         parameterRepo.deleteAll();
     }
+
+    @Override
+    public void deleteAll(List<Parameter> parameters) {
+        parameterRepo.deleteAll(parameters);
+    }
 }
