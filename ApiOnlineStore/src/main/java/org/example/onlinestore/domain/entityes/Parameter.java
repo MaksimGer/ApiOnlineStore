@@ -1,25 +1,20 @@
 package org.example.onlinestore.domain.entityes;
 
-//import org.example.onlinestore.domain.entityes.resources.CompositeKey;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-//@IdClass(CompositeKey.class)
 @Table(name = "Params")
 public class Parameter implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    @Id
     @ManyToOne()
     @JoinColumn(name = "product_id")
     private Product product;
 
-//    @Id
     @ManyToOne()
     @JoinColumn(name = "attribute_id")
     private Attribute attribute;

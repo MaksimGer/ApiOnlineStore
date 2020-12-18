@@ -1,10 +1,5 @@
 package org.example.onlinestore.domain.entityes;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import org.example.onlinestore.domain.entityes.resolver.EntityIdResolver;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;

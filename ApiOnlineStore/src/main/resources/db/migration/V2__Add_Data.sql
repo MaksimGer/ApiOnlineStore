@@ -83,8 +83,10 @@ INSERT into params (id, value, product_id, attribute_id) values
 	(nextval('hibernate_sequence'), 'black', 	 15, 4);
 
 INSERT into usr (id, active, password, username) values
-    (1, false, 'admin', 'admin');
+    (1, false, '$2y$12$lHcgzUJzqlg56mcSeO.qPugoKl5os7X.cib0UUHKpBdwyKCv6820u', 'admin'), /*admin:admin*/
+    (2, false, '$2y$12$hNhdFmaKIjeSGQNUYVxj6.wyHxKY/w4HkS/QsHmmV1hGuO14s6es.', 'guest'); /*guest:password*/
 
 INSERT into user_roles (user_id, roles) values
     (1, 'USER'),
-    (1, 'ADMIN');
+    (1, 'ADMIN'),
+    (2, 'USER');

@@ -1,20 +1,37 @@
 package org.example.onlinestore.services;
 
-import org.example.onlinestore.domain.entityes.Product;
 import org.example.onlinestore.domain.entityes.User;
+import org.example.onlinestore.domain.entityes.resources.Role;
 import org.example.onlinestore.repos.UserRepo;
 import org.example.onlinestore.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
-public class UserService implements IUserService {
+public class UserService implements UserDetailsService, IUserService {
+    private static final Long ADMIN_ID = (long)1;
+    private static final Long GUEST_ID = (long)2;
+
     @Autowired
     private UserRepo userRepo;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepo.findByUsername(username);
+
+        if(user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        user.setActive(true);
+        return user;
+    }
 
     @Override
     public List<User> findAll() {
@@ -38,7 +55,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User update(Long id, String username, String password, List<String> roles, Boolean isActive) {
+    public User update(Long id, String username, String password, Set<Role> roles, Boolean isActive) {
         if(id == null)
             return null;
 
@@ -48,7 +65,7 @@ public class UserService implements IUserService {
             return null;
 
         curUser.setPassword(password);
-        if(id != 1){
+        if(!id.equals(ADMIN_ID) && !id.equals(GUEST_ID)){
             curUser.setUsername(username);
             curUser.setRoles(roles);
         }
@@ -59,7 +76,7 @@ public class UserService implements IUserService {
 
     @Override
     public User deleteById(Long id) {
-        if(id == null || id == 1)
+        if(id == null || id.equals(ADMIN_ID) || id.equals(GUEST_ID))
             return null;
 
         User curUser = userRepo.findById(id).orElse(null);
@@ -72,19 +89,15 @@ public class UserService implements IUserService {
 
     @Override
     public void deleteAll() {
+        User admin = userRepo.findById(ADMIN_ID).orElse(null);
+        User guest = userRepo.findById(GUEST_ID).orElse(null);
+
         userRepo.deleteAll();
 
-        User userAdmin = new User();
-        List<String> userRoles = new ArrayList<>();
+        if(admin != null)
+            userRepo.save(admin);
 
-        userRoles.add("USER");
-        userRoles.add("ADMIN");
-
-        userAdmin.setId((long)1);
-        userAdmin.setUsername("Admin");
-        userAdmin.setPassword("Admin");
-        userAdmin.setRoles(userRoles);
-
-        userRepo.save(userAdmin);
+        if(guest != null)
+            userRepo.save(guest);
     }
 }

@@ -10,6 +10,7 @@ import org.example.onlinestore.services.interfaces.ICategoryService;
 import org.example.onlinestore.services.interfaces.IParameterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ public class CategoryController {
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Category createCategory(@RequestBody CategoryModel requestCategory) {
         List<Category> categoriesByName = categoryService.findAllByName(requestCategory.getName());
 
@@ -72,6 +74,7 @@ public class CategoryController {
 
     @RequestMapping(value = "", method = RequestMethod.PUT, produces = { MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Category updateCategory(@RequestBody CategoryModel requestCategory) {
         Category curCategory = categoryService.findById(requestCategory.getId());
         List<Category> allCategoriesByName = categoryService.findAllByName(requestCategory.getName());
@@ -90,6 +93,7 @@ public class CategoryController {
 
     @RequestMapping(value = "", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String deleteCategory(@RequestParam("id") Category category) {
         if(category.getProducts().isEmpty()) {
             category.removeAllAttributes();

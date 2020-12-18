@@ -10,4 +10,6 @@ public interface UserRepo extends CrudRepository<User, Long> {
     @Override
     @NonNull
     List<User> findAll();
+
+    User findByUsername(String username);
 }

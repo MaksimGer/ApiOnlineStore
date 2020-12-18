@@ -4,12 +4,14 @@ import org.example.onlinestore.domain.entityes.Attribute;
 import org.example.onlinestore.services.interfaces.IAttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/attributes")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class AttributeController {
 
     @Autowired

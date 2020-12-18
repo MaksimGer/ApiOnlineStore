@@ -10,6 +10,7 @@ import org.example.onlinestore.services.interfaces.IParameterService;
 import org.example.onlinestore.services.interfaces.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ProductController {
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Product> getAllProducts(){
         return productService.findAll();
     }
@@ -48,6 +50,7 @@ public class ProductController {
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Product createProduct(@RequestBody ProductModel requestProduct){
         Category productCategory = categoryService.findById(requestProduct.getCategoryId());
         String productName = requestProduct.getName();
@@ -69,6 +72,7 @@ public class ProductController {
 
     @RequestMapping(value = "", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Product updateProduct(@RequestBody ProductModel requestProduct){
         Product curProduct = productService.findById(requestProduct.getId());
         Category productCategory = categoryService.findById(requestProduct.getCategoryId());
@@ -89,6 +93,7 @@ public class ProductController {
 
     @RequestMapping(value = "", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Product deleteProduct(@RequestParam("id") Product product){
         if(product == null)
             return null;
