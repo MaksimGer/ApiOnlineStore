@@ -53,6 +53,21 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public Product update(Product product) {
+        Product curProduct = productRepo.findById(product.getId()).orElse(null);
+
+        if(curProduct == null)
+            return null;
+
+        curProduct.setName(product.getName());
+        curProduct.setPrice(product.getPrice());
+        curProduct.setCount(product.getCount());
+        curProduct.setCategory(product.getCategory());
+
+        return productRepo.save(curProduct);
+    }
+
+    @Override
     public Product deleteById(Long id) {
         if(id == null)
             return null;

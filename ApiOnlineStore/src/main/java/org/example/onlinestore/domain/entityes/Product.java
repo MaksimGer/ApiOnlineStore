@@ -7,7 +7,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "Products")
 public class Product implements Serializable {
-    private static final long serialVersionUID = 1188L;
+    private static final long serialVersionUID = 1189L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -15,6 +15,12 @@ public class Product implements Serializable {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "price")
+    private Double price = 0.0;
+
+    @Column(name = "count")
+    private Long count = (long) 0;
 
     @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
@@ -29,6 +35,10 @@ public class Product implements Serializable {
     public String getName() { return name; }
 
     public Category getCategory() { return category; }
+
+    public Double getPrice() { return price; }
+
+    public Long getCount() { return count; }
 
     public void setId(Long id) { this.id = id; }
 
@@ -46,6 +56,16 @@ public class Product implements Serializable {
         }
     }
 
+    public void setPrice(Double price) {
+        if(price > 0)
+            this.price = price;
+    }
+
+    public void setCount(Long count) {
+        if(count > 0)
+            this.count = count;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {return true;}
@@ -54,6 +74,8 @@ public class Product implements Serializable {
 
         return Objects.equals(id, product.id) &&
                 Objects.equals(name, product.name) &&
+                Objects.equals(price, product.price) &&
+                Objects.equals(count, product.count) &&
                 category.equals(product.category);
     }
 
@@ -61,8 +83,10 @@ public class Product implements Serializable {
     public int hashCode() {
         int hashCode = 23;
 
-        hashCode = 31 * hashCode + (int)(id^(id>>>32));
+        hashCode = 31 * hashCode + id.hashCode();
         hashCode = 31 * hashCode + name.hashCode();
+        hashCode = 31 * hashCode + price.hashCode();
+        hashCode = 31 * hashCode + count.hashCode();
         hashCode = 31 * hashCode + category.hashCode();
 
         return hashCode;

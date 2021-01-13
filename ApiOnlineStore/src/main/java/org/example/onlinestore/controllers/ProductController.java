@@ -60,6 +60,8 @@ public class ProductController {
 
         Product newProduct = new Product();
         newProduct.setName(productName);
+        newProduct.setPrice(requestProduct.getPrice());
+        newProduct.setCount(requestProduct.getCount());
         productService.save(newProduct);
         newProduct.setCategory(productCategory);
 
@@ -84,6 +86,8 @@ public class ProductController {
             curProduct.setCategory(productCategory);
 
         curProduct.setName(requestProduct.getName());
+        curProduct.setPrice(requestProduct.getPrice());
+        curProduct.setCount(requestProduct.getCount());
         productService.save(curProduct);
 
         setParametersToProduct(curProduct, requestProduct);

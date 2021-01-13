@@ -35,6 +35,8 @@ create table params (
 create table products (
     id int8 not null,
     name varchar(255),
+    price float8,
+    count int8,
     category_id int8,
     primary key (id)
 );
