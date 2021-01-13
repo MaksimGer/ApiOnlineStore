@@ -30,14 +30,13 @@ public class ProductController {
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Product> getAllProducts(){
         return productService.findAll();
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public Product getProducts(@RequestParam(value = "id") Product product) { return  product; }
+    public Product getProduct(@RequestParam(value = "id") Product product) { return  product; }
 
     @RequestMapping(value = "/parameters/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody

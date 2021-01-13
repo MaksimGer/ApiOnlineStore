@@ -64,6 +64,7 @@ public class CategoryController {
         if(categoriesByName.isEmpty()){
             Category newCategory = new Category();
             newCategory.setName(requestCategory.getName());
+            categoryService.save(newCategory);
 
             addAttrFromReq(newCategory, requestCategory);
 
