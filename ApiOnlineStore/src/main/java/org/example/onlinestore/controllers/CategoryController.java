@@ -9,7 +9,9 @@ import org.example.onlinestore.services.interfaces.IAttributeService;
 import org.example.onlinestore.services.interfaces.ICategoryService;
 import org.example.onlinestore.services.interfaces.IParameterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,16 +97,16 @@ public class CategoryController {
     @RequestMapping(value = "", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String deleteCategory(@RequestParam("id") Category category) {
+    public ResponseEntity<Category> deleteCategory(@RequestParam("id") Category category) {
         if(category.getProducts().isEmpty()) {
             category.removeAllAttributes();
             category.removeAllProducts();
             categoryService.save(category); //update tables category_attribute and category_product
             categoryService.deleteById(category.getId());
 
-            return "SUCCESS";
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return "ERROR: CATEGORY CONTAINS PRODUCTS!";
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     private void addAttrFromReq(Category curCategory, CategoryModel requestCategory){
