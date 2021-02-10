@@ -2,6 +2,7 @@ package org.example.onlinestore.controllers;
 
 import org.example.onlinestore.domain.entityes.Product;
 import org.example.onlinestore.domain.entityes.User;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,8 @@ public class UserController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public ResponseEntity<User> getUser(@RequestParam(value = "id") User user) {
-        if (user == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<User> getUser(@RequestParam(value = "id") Long userId) {
+        User user = userService.findById(userId).orElseThrow(NotFoundException::new);
 
         return  new ResponseEntity<>(user, HttpStatus.OK);
     }
@@ -41,8 +41,9 @@ public class UserController {
 
     @RequestMapping(value = "/users", method = RequestMethod.PUT)
     public User updateUser(@RequestBody User user) {
+        Long userId = userService.findById(user.getId()).orElseThrow(NotFoundException::new).getId();
 
-        return userService.update(user.getId(), user.getUsername(), user.getPassword(), user.getRoles(), user.isActive());
+        return userService.update(userId, user.getUsername(), user.getPassword(), user.getRoles(), user.isActive());
     }
 
     @RequestMapping(value = "", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})

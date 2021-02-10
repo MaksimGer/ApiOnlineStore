@@ -2,6 +2,8 @@ package org.example.onlinestore.services;
 
 import org.example.onlinestore.domain.entityes.Attribute;
 import org.example.onlinestore.domain.entityes.Product;
+import org.example.onlinestore.exceptions.BadRequestException;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.repos.ProductRepo;
 import org.example.onlinestore.services.interfaces.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +24,12 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product findById(Long id) {
-        if(id == null)
-            return null;
-
-        Optional<Product> productById = productRepo.findById(id);
-
-        return productById.orElse(null);
+    public Optional<Product> findById(Long id) {
+        if(id != null) {
+            return productRepo.findById(id);
+        }else{
+            throw new BadRequestException("ProductId is null");
+        }
     }
 
     @Override
@@ -39,25 +40,21 @@ public class ProductService implements IProductService {
 
     @Override
     public Product update(Long id, String name) {
-        if(id == null)
-            return null;
+        if(id != null) {
 
-        Product curProduct = productRepo.findById(id).orElse(null);
+            Product curProduct = productRepo.findById(id).orElseThrow(NotFoundException::new);
 
-        if(curProduct == null)
-            return null;
+            curProduct.setName(name);
 
-        curProduct.setName(name);
-
-        return productRepo.save(curProduct);
+            return productRepo.save(curProduct);
+        }else {
+            throw new BadRequestException("ProductId is null");
+        }
     }
 
     @Override
     public Product update(Product product) {
-        Product curProduct = productRepo.findById(product.getId()).orElse(null);
-
-        if(curProduct == null)
-            return null;
+        Product curProduct = productRepo.findById(product.getId()).orElseThrow(NotFoundException::new);
 
         curProduct.setName(product.getName());
         curProduct.setPrice(product.getPrice());
@@ -69,15 +66,17 @@ public class ProductService implements IProductService {
 
     @Override
     public Product deleteById(Long id) {
-        if(id == null)
-            return null;
+        if(id != null) {
 
-        Product curProduct = productRepo.findById(id).orElse(null);
+            Product curProduct = productRepo.findById(id).orElse(null);
 
-        if(curProduct != null)
-            productRepo.delete(curProduct);
+            if (curProduct != null)
+                productRepo.delete(curProduct);
 
-        return curProduct;
+            return curProduct;
+        }else {
+            throw new BadRequestException("ProductId is null");
+        }
     }
 
     @Override

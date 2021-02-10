@@ -3,6 +3,8 @@ package org.example.onlinestore.services;
 import org.example.onlinestore.domain.entityes.Attribute;
 import org.example.onlinestore.domain.entityes.Parameter;
 import org.example.onlinestore.domain.entityes.Product;
+import org.example.onlinestore.exceptions.BadRequestException;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.repos.ParameterRepo;
 import org.example.onlinestore.services.interfaces.IParameterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,36 +14,35 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class parameterService implements IParameterService {
+public class ParameterService implements IParameterService {
 
     @Autowired
     private ParameterRepo parameterRepo;
 
-
     @Override
     public List<Parameter> findAllByProduct(Product product) {
-        if(product == null)
-            return null;
-
-        return parameterRepo.findAllByProduct(product);
+        if(product != null) {
+            return parameterRepo.findAllByProduct(product);
+        }else{
+            throw new BadRequestException("Product is null");
+        }
     }
 
     @Override
     public List<Parameter> findAllByAttribute(Attribute attribute) {
-        if(attribute == null)
-            return null;
-
-        return parameterRepo.findAllByAttribute(attribute);
+        if(attribute != null) {
+            return parameterRepo.findAllByAttribute(attribute);
+        }else{
+            throw new BadRequestException("Attribute is null");
+        }
     }
 
     @Override
-    public Parameter findByProductAndAttribute(Product product, Attribute attribute) {
+    public Optional<Parameter> findByProductAndAttribute(Product product, Attribute attribute) {
         if(product == null || attribute == null)
-            return null;
+            throw new BadRequestException("Product or attribute is null");
 
-        Optional<Parameter> parameter = parameterRepo.findByProductAndAttribute(product, attribute);
-
-        return parameter.orElse(null);
+        return parameterRepo.findByProductAndAttribute(product, attribute);
     }
 
     @Override
@@ -53,12 +54,11 @@ public class parameterService implements IParameterService {
     @Override
     public Parameter update(Product product, Attribute attribute, String value) {
         if(product == null || attribute == null)
-            return null;
+            throw new BadRequestException("Product or attribute is null");
 
-        Parameter parameter = parameterRepo.findByProductAndAttribute(product, attribute).orElse(null);
-
-        if(parameter == null)
-            return null;
+        Parameter parameter = parameterRepo.findByProductAndAttribute(product, attribute).orElseThrow(
+                () -> new BadRequestException("Parameter does not exist")
+        );
 
         parameter.setValue(value);
 
@@ -68,11 +68,11 @@ public class parameterService implements IParameterService {
     @Override
     public Parameter deleteByProductAndAttribute(Product product, Attribute attribute) {
         if(product == null || attribute == null)
-            return null;
+            throw new BadRequestException("Product or attribute is null");
 
-        Parameter curParameter = parameterRepo.findByProductAndAttribute(product, attribute).orElse(null);
-        if(curParameter != null)
-            parameterRepo.delete(curParameter);
+        Parameter curParameter = parameterRepo.findByProductAndAttribute(product, attribute).orElseThrow(NotFoundException::new);
+
+        parameterRepo.delete(curParameter);
 
         return curParameter;
     }

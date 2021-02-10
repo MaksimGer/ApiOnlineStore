@@ -2,6 +2,8 @@ package org.example.onlinestore.services;
 
 import org.example.onlinestore.domain.entityes.User;
 import org.example.onlinestore.domain.entityes.resources.Role;
+import org.example.onlinestore.exceptions.BadRequestException;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.repos.UserRepo;
 import org.example.onlinestore.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +26,10 @@ public class UserService implements UserDetailsService, IUserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findByUsername(username);
+        User user = userRepo.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found")
+        );
 
-        if(user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
         user.setActive(true);
         return user;
     }
@@ -39,52 +40,49 @@ public class UserService implements UserDetailsService, IUserService {
     }
 
     @Override
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         if(id == null)
-            return null;
+            throw new BadRequestException("UserId id null");
 
-        Optional<User> userById = userRepo.findById(id);
-
-        return userById.orElse(null);
+        return userRepo.findById(id);
     }
 
     @Override
     public User save(User user) {
-        if(user != null)
+        if(user != null) {
             return userRepo.save(user);
-
-        return null;
+        }else {
+            throw new BadRequestException("User is null");
+        }
     }
 
     @Override
     public User update(Long id, String username, String password, Set<Role> roles, Boolean isActive) {
-        if(id == null)
-            return null;
+        if(id != null) {
 
-        User curUser = userRepo.findById(id).orElse(null);
+            User curUser = userRepo.findById(id).orElseThrow(NotFoundException::new);
 
-        if(curUser == null)
-            return null;
+            curUser.setPassword(password);
+            if (!id.equals(ADMIN_ID) && !id.equals(GUEST_ID)) {
+                curUser.setUsername(username);
+                curUser.setRoles(roles);
+            }
+            curUser.setActive(isActive);
 
-        curUser.setPassword(password);
-        if(!id.equals(ADMIN_ID) && !id.equals(GUEST_ID)){
-            curUser.setUsername(username);
-            curUser.setRoles(roles);
+            return userRepo.save(curUser);
+        }else{
+            throw new BadRequestException("UserId is null");
         }
-        curUser.setActive(isActive);
-
-        return userRepo.save(curUser);
     }
 
     @Override
     public User deleteById(Long id) {
         if(id == null || id.equals(ADMIN_ID) || id.equals(GUEST_ID))
-            return null;
+            throw new BadRequestException("Unable to delete admin or guest account");
 
-        User curUser = userRepo.findById(id).orElse(null);
+        User curUser = userRepo.findById(id).orElseThrow(NotFoundException::new);
 
-        if(curUser != null)
-            userRepo.delete(curUser);
+        userRepo.delete(curUser);
 
         return curUser;
     }

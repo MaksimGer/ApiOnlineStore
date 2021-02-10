@@ -5,11 +5,12 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepo extends CrudRepository<User, Long> {
     @Override
     @NonNull
     List<User> findAll();
 
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 }

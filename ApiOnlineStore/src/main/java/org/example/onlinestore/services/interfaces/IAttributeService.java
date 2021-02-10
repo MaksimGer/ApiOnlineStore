@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface IAttributeService {
     List<Attribute> findAll();
-    Attribute findById(Long id);
+    Optional<Attribute> findById(Long id);
     Attribute save(Attribute attribute);
     Attribute update(Long id, String name);
     Attribute deleteById(Long id);

@@ -2,6 +2,8 @@ package org.example.onlinestore.services;
 
 import org.example.onlinestore.domain.entityes.Attribute;
 import org.example.onlinestore.domain.entityes.Category;
+import org.example.onlinestore.exceptions.BadRequestException;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.repos.CategoryRepo;
 import org.example.onlinestore.services.interfaces.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,50 +24,50 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Category findById(Long id) {
-        if(id == null)
-            return null;
-
-        Optional<Category> categoryById = categoryRepo.findById(id);
-
-        return categoryById.orElse(null);
+    public Optional<Category> findById(Long id) {
+        if(id != null) {
+            return categoryRepo.findById(id);
+        }else{
+            throw new BadRequestException("CategoryId is null");
+        }
     }
 
     @Override
     public Category save(Category category) {
-        if(category != null)
+        if(category != null) {
             return categoryRepo.save(category);
-
-        return null;
+        }else{
+            throw new BadRequestException("Category is null");
+        }
     }
 
     @Override
     public Category update(Category updateCategory) {
-        if(updateCategory.getId() == null)
-            return null;
+        if(updateCategory.getId() != null) {
+            Category curCategory = categoryRepo.findById(updateCategory.getId()).orElseThrow(
+                    () -> new BadRequestException("Category does not exist")
+            );
 
-        Category curCategory = categoryRepo.findById(updateCategory.getId()).orElse(null);
+            curCategory.setName(updateCategory.getName());
+            curCategory.setAttributes(updateCategory.getAttributes());
 
-        if(curCategory == null)
-            return null;
-
-        curCategory.setName(updateCategory.getName());
-        curCategory.setAttributes(updateCategory.getAttributes());
-
-        return categoryRepo.save(curCategory);
+            return categoryRepo.save(curCategory);
+        }else {
+            throw new BadRequestException("CategoryId is null");
+        }
     }
 
     @Override
     public Category deleteById(Long id) {
-        if(id == null)
-            return null;
+        if(id != null) {
+            Category curCategory = categoryRepo.findById(id).orElseThrow(NotFoundException::new);
 
-        Category curCategory = categoryRepo.findById(id).orElse(null);
-
-        if(curCategory != null)
             categoryRepo.delete(curCategory);
 
-        return curCategory;
+            return curCategory;
+        }else {
+            throw new BadRequestException("CategoryId is null");
+        }
     }
 
     @Override
@@ -75,9 +77,10 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<Category> findAllByName(String categoryName) {
-        if(categoryName == null)
-            return null;
-
-        return categoryRepo.findAllByName(categoryName);
+        if(categoryName != null) {
+            return categoryRepo.findAllByName(categoryName);
+        }else{
+            throw new BadRequestException("CategoryName is null");
+        }
     }
 }

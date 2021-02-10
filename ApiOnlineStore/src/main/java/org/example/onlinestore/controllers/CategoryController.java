@@ -5,6 +5,8 @@ import org.example.onlinestore.domain.entityes.Category;
 import org.example.onlinestore.domain.entityes.Parameter;
 import org.example.onlinestore.domain.entityes.Product;
 import org.example.onlinestore.domain.models.CategoryModel;
+import org.example.onlinestore.exceptions.BadRequestException;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.services.interfaces.IAttributeService;
 import org.example.onlinestore.services.interfaces.ICategoryService;
 import org.example.onlinestore.services.interfaces.IParameterService;
@@ -39,28 +41,30 @@ public class CategoryController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public Category getCategory(@RequestParam(value = "id") Category category) {return  category;}
+    public Category getCategory(@RequestParam(value = "id") Long categoryId) {
+        return  categoryService.findById(categoryId).orElseThrow(NotFoundException::new);
+    }
 
     @RequestMapping(value = "/attributes/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public Set<Attribute> getCategoryAttributes(@RequestParam(value = "id") Category category){
-        if(category != null)
-            return category.getAttributes();
-        return null;
+    public Set<Attribute> getCategoryAttributes(@RequestParam(value = "id") Long categoryId){
+        Category curCategory = categoryService.findById(categoryId).orElseThrow(NotFoundException::new);
+
+        return curCategory.getAttributes();
     }
 
     @RequestMapping(value = "/products/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
-    public Set<Product> getCategoryProducts(@RequestParam(value = "id") Category category){
-        if(category != null)
-            return category.getProducts();
-        return null;
+    public Set<Product> getCategoryProducts(@RequestParam(value = "id") Long categoryId){
+        Category curCategory = categoryService.findById(categoryId).orElseThrow(NotFoundException::new);
+
+        return curCategory.getProducts();
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Category createCategory(@RequestBody CategoryModel requestCategory) {
+    public ResponseEntity<Category> createCategory(@RequestBody CategoryModel requestCategory) {
         List<Category> categoriesByName = categoryService.findAllByName(requestCategory.getName());
 
         if(categoriesByName.isEmpty()){
@@ -70,48 +74,56 @@ public class CategoryController {
 
             addAttrFromReq(newCategory, requestCategory);
 
-            return categoryService.save(newCategory);
+            return new ResponseEntity<>(categoryService.save(newCategory), HttpStatus.OK);
         }else
-            return null;
+            throw new BadRequestException("CategoryName already exist");
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT, produces = { MediaType.APPLICATION_JSON_VALUE})
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Category updateCategory(@RequestBody CategoryModel requestCategory) {
-        Category curCategory = categoryService.findById(requestCategory.getId());
+    public ResponseEntity<Category> updateCategory(@RequestBody CategoryModel requestCategory) {
+        Category curCategory = categoryService.findById(requestCategory.getId()).orElseThrow(NotFoundException::new);
         List<Category> allCategoriesByName = categoryService.findAllByName(requestCategory.getName());
 
-        if(curCategory != null){
-            if(allCategoriesByName.isEmpty())
-                curCategory.setName(requestCategory.getName());
+        if(allCategoriesByName.isEmpty())
+            curCategory.setName(requestCategory.getName());
 
-            addAttrFromReq(curCategory, requestCategory);
+        addAttrFromReq(curCategory, requestCategory);
 
-            return categoryService.update(curCategory);
-        }
-
-        return null;
+        return new ResponseEntity<>(categoryService.update(curCategory), HttpStatus.OK);
     }
 
     @RequestMapping(value = "", method = RequestMethod.DELETE, produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Category> deleteCategory(@RequestParam("id") Category category) {
-        if(category.getProducts().isEmpty()) {
+    public ResponseEntity<String> deleteCategory(@RequestParam("id") Long categoryId) {
+        Category category = categoryService.findById(categoryId).orElseThrow(NotFoundException::new);
+        Set<Product> categoryProducts = category.getProducts();
+
+        if(categoryProducts.isEmpty()) {
             category.removeAllAttributes();
             category.removeAllProducts();
             categoryService.save(category); //update tables category_attribute and category_product
             categoryService.deleteById(category.getId());
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else{
+            StringBuilder message = new StringBuilder("THIS CATEGORY CONTAINS PRODUCTS: ");
+
+            for(Product product: categoryProducts){
+                message.append("\"").append(product.getName()).append("\", ");
+            }
+
+            message.delete(message.length() - 2, message.length());
+
+            return new ResponseEntity<>(message.toString(), HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     private void addAttrFromReq(Category curCategory, CategoryModel requestCategory){
         for(Long attributeId: requestCategory.getAttributes()){
-            Attribute attrById = attributeService.findById(attributeId);
+            Attribute attrById = attributeService.findById(attributeId).orElse(null);
 
             if(attrById!=null) {
                 if (curCategory.addAttribute(attrById)) {

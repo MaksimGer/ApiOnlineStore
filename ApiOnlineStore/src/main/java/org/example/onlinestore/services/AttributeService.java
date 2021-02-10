@@ -2,6 +2,8 @@ package org.example.onlinestore.services;
 
 import org.example.onlinestore.domain.entityes.Attribute;
 import org.example.onlinestore.domain.entityes.Parameter;
+import org.example.onlinestore.exceptions.BadRequestException;
+import org.example.onlinestore.exceptions.NotFoundException;
 import org.example.onlinestore.repos.AttributeRepo;
 import org.example.onlinestore.services.interfaces.IAttributeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,49 +23,48 @@ public class AttributeService implements IAttributeService {
     }
 
     @Override
-    public Attribute findById(Long id) {
-        if(id == null)
-            return null;
-
-        Optional<Attribute> attrById = attributeRepo.findById(id);
-
-        return attrById.orElse(null);
+    public Optional<Attribute> findById(Long id) {
+        if(id != null){
+            return attributeRepo.findById(id);
+        }else{
+            throw new BadRequestException("AttributeId is null");
+        }
     }
 
     @Override
     public Attribute save(Attribute attribute) {
-        if(attribute != null)
+        if(attribute != null) {
             return attributeRepo.save(attribute);
-
-        return null;
+        }else {
+            throw new BadRequestException("Attribute is null");
+        }
     }
 
     @Override
     public Attribute update(Long id, String name) {
-        if(id == null)
-            return null;
+        if(id != null) {
+            Attribute curAttr = attributeRepo.findById(id).orElseThrow(NotFoundException::new);
 
-        Attribute curAttr = attributeRepo.findById(id).orElse(null);
+            curAttr.setName(name);
 
-        if(curAttr == null)
-            return null;
-
-        curAttr.setName(name);
-
-        return attributeRepo.save(curAttr);
+            return attributeRepo.save(curAttr);
+        }else {
+            throw new BadRequestException("AttributeId is null");
+        }
     }
 
     @Override
     public Attribute deleteById(Long id) {
-        if(id == null)
-            return null;
+        if(id != null){
+            Attribute curAttribute = attributeRepo.findById(id).orElse(null);
 
-        Attribute curAttribute = attributeRepo.findById(id).orElse(null);
+            if(curAttribute != null)
+                attributeRepo.delete(curAttribute);
 
-        if(curAttribute != null)
-            attributeRepo.delete(curAttribute);
-
-        return curAttribute;
+            return curAttribute;
+        }else {
+            throw new BadRequestException("AttributeId is null");
+        }
     }
 
     @Override
@@ -73,9 +74,10 @@ public class AttributeService implements IAttributeService {
 
     @Override
     public List<Attribute> findAllByName(String attributeName) {
-        if(attributeName == null)
-            return null;
-
-        return attributeRepo.findAllByName(attributeName);
+        if(attributeName != null) {
+            return attributeRepo.findAllByName(attributeName);
+        }else {
+            throw new BadRequestException("AttributeName is null");
+        }
     }
 }
